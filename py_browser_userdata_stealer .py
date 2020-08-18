@@ -16,12 +16,11 @@ out_file_name = "UserData.csv"
 
 os_name = platform.system()
 if os_name == "Windows":
-    chrome_user_data_path = os.path.normpath("%LOCALAPPDATA%/Google/Chrome/User Data")
-    chrome_user_data_path = os.path.expandvars(chrome_user_data_path)
+    chrome_user_data_path = os.path.normpath(os.getenv("LOCALAPPDATA") + "/Google/Chrome/User Data")
 elif os_name == "Linux":
-    chrome_user_data_path = os.path.normpath("~/Library/Application Support/Google/Chrome")
+    chrome_user_data_path = os.path.normpath(os.path.expanduser("~") + "/Library/Application Support/Google/Chrome")
 elif os_name == "Darwin":
-    chrome_user_data_path = os.path.normpath("~/.config/google-chrome")
+    chrome_user_data_path = os.path.normpath(os.path.expanduser("~") + "/.config/google-chrome")
 else:
     sys.exit("Unsupported OS")
 
@@ -57,13 +56,17 @@ def hunt_GoogleChrome():
         login_data = curs.fetchall()
     except sqlite3.DatabaseError as err:
         except_appeared = True
-        print("Error: ", err)
+        print("Error with Google Chrome: ", err)
         print("Make sure Google Chrome is not running and try again")
     finally:
         conn.close()
 
     if except_appeared:
-        return None
+        return False
+
+    if not login_data:
+        print("No userdata stored in Google Chrome")
+        return False
 
     # Version prefix for data encrypted with profile bound key
     version_prefix = "v10";
@@ -91,6 +94,8 @@ def hunt_GoogleChrome():
             line = line + ";{0};{1}".format(password, date_last_used)
             file.write(line + "\n")
 
+    return True
+
 # Start
 print("Console app that searches for browser user data and writes it to a .csv file\n")
 
@@ -105,8 +110,12 @@ if not installed_browsers:
 print("Detected browsers:")
 for browser in installed_browsers:
     print(browser)
+print()
 
+at_least_one = False
 if "Google Chrome" in installed_browsers:
-    hunt_GoogleChrome();
+    if hunt_GoogleChrome():
+        at_least_one = True
 
-print("\nFile \"{}\" has been successfully created".format(out_file_name))
+if at_least_one:
+    print("\nFile \"{}\" has been successfully created".format(out_file_name))
