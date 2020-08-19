@@ -1,6 +1,8 @@
 # py_browser_userdata_stealer
 
+Steals user data (passwords, logins etc.) from browsers and writes it to .csv file.
+
 Python (and better) version of BrowserLoginDataExtractor.
 
 ## Build
-`pyinstaller --onefile py_browser_userdata_stealer.py`
+`pyinstaller -F py_browser_userdata_stealer.py`
