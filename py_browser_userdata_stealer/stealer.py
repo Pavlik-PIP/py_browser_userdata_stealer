@@ -149,45 +149,48 @@ def steal_YandexBrowser():
 
     return True
 
-# Start
-print("Console app that searches for browser user data and writes it to a .csv file\n")
+def main():
+    print("Console app that searches for browser user data and writes it to a .csv file\n")
 
-# Create or truncate files
-open(out_file_name, 'w', encoding='utf-8').close()
-open(temp_db, 'w', encoding='utf-8').close()
+    # Create or truncate files
+    open(out_file_name, 'w', encoding='utf-8').close()
+    open(temp_db, 'w', encoding='utf-8').close()
 
-installed_browsers = []
+    installed_browsers = []
 
-if os.path.exists(chrome_login_data_path):
-    installed_browsers.append("Google Chrome")
-if os.path.exists(yandex_login_data_path):
-    installed_browsers.append("Yandex browser")
+    if os.path.exists(chrome_login_data_path):
+        installed_browsers.append("Google Chrome")
+    if os.path.exists(yandex_login_data_path):
+        installed_browsers.append("Yandex browser")
 
-if not installed_browsers:
-    sys.exit("Couldn't find any browsers on your computer")
+    if not installed_browsers:
+        sys.exit("Couldn't find any browsers on your computer")
 
-print("Detected browsers:")
-for browser in installed_browsers:
-    print(browser)
-print()
+    print("Detected browsers:")
+    for browser in installed_browsers:
+        print(browser)
+    print()
 
-at_least_one = False
-if "Google Chrome" in installed_browsers:
-    try:
-        if steal_GoogleChrome():
-            at_least_one = True
-    except Exception as e:
-        print("Error with Google Chrome: ", e)
-if "Yandex browser" in installed_browsers:
-    try:
-        if steal_YandexBrowser():
-            at_least_one = True
-    except Exception as e:
-        print("Error with Yandex browser: ", e)
+    at_least_one = False
+    if "Google Chrome" in installed_browsers:
+        try:
+            if steal_GoogleChrome():
+                at_least_one = True
+        except Exception as e:
+            print("Error with Google Chrome: ", e)
+    if "Yandex browser" in installed_browsers:
+        try:
+            if steal_YandexBrowser():
+                at_least_one = True
+        except Exception as e:
+            print("Error with Yandex browser: ", e)
 
-if at_least_one:
-    print("\nFile \"{}\" has been successfully created".format(out_file_name))
-else:
-    os.remove(out_file_name)
+    if at_least_one:
+        print("\nFile \"{}\" has been successfully created".format(out_file_name))
+    else:
+        os.remove(out_file_name)
 
-os.remove(temp_db)
+    os.remove(temp_db)
+
+if __name__ == "__main__":
+    main()
