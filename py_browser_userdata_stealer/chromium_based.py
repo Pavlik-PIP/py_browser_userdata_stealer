@@ -14,12 +14,12 @@ class ChromiumBased:
     def __init__(self, name, user_data_path):
         self.name = name
         self.user_data_path = user_data_path
+        self.local_state_path = os.path.join(user_data_path, "Local State")
+        self.database_paths = self._get_database_paths()
 
         self.is_yandex = "Yandex" in name
 
-        self.local_state_path = os.path.join(user_data_path, "Local State")
-
-        self.database_paths = self._get_database_paths()
+        self.key = self._get_key()
 
         indent = " "*4
         self.wrapper = textwrap.TextWrapper(initial_indent=indent, subsequent_indent=indent)
@@ -77,14 +77,12 @@ class ChromiumBased:
             if not logins_data:
                 continue
 
-            key = self._get_key()
-
             for row in logins_data:
                 url = row[0]
                 username = row[1]
                 encrypted_password = row[2]
 
-                password = self._decrypt_password(encrypted_password, key)
+                password = self._decrypt_password(encrypted_password, self.key)
 
                 row = (url, username, password)
                 credentials.append(row)
@@ -96,12 +94,12 @@ class ChromiumBased:
             data = json.load(f)
             encrypted_key = data['os_crypt']['encrypted_key']
 
-            encrypted_key = base64.b64decode(encrypted_key)
+        encrypted_key = base64.b64decode(encrypted_key)
 
-            DPAPI_prefix = "DPAPI"
-            encrypted_key = encrypted_key[len(DPAPI_prefix):]
+        DPAPI_prefix = "DPAPI"
+        encrypted_key = encrypted_key[len(DPAPI_prefix):]
 
-            key = win32crypt.CryptUnprotectData(encrypted_key, None, None, None, 0)[1]
+        key = win32crypt.CryptUnprotectData(encrypted_key, None, None, None, 0)[1]
 
         return key
 
