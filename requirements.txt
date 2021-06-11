@@ -1,2 +1,2 @@
-win32crypt
+pywin32
 pycryptodome
