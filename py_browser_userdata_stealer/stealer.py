@@ -43,7 +43,7 @@ def main():
             credentials = browser.get_credentials()
             if credentials:
                 print(wrapper.fill("Found {} credentials".format(len(credentials))))
-                error_count = sum("%ERROR%" in r for r in credentials)
+                error_count = sum("%ERROR%" in r[2] for r in credentials)
                 if error_count > 0:
                     print(wrapper.fill("At least {} passwords failed to decrypt".format(error_count)))
 
