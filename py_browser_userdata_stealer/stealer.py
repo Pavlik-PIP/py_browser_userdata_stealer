@@ -3,9 +3,10 @@
 
 import os
 import sys
-import textwrap
 
 from .chromium_based import ChromiumBased
+
+from . import indent_text
 
 # Chromium based browser's name, User Data path
 chromium_browsers = (
@@ -32,9 +33,6 @@ def main():
     if not installed_browsers:
         sys.exit("No browsers found")
 
-    indent = " "*4
-    wrapper = textwrap.TextWrapper(initial_indent=indent, subsequent_indent=indent)
-
     out_file = "credentials.csv"
     with open(out_file, 'w', encoding='utf-8') as f:
         for browser in installed_browsers:
@@ -42,10 +40,10 @@ def main():
             
             credentials = browser.get_credentials()
             if credentials:
-                print(wrapper.fill("Found {} credentials".format(len(credentials))))
+                print(indent_text("Found {} credentials".format(len(credentials))))
                 error_count = sum("%ERROR%" in r[2] for r in credentials)
                 if error_count > 0:
-                    print(wrapper.fill("At least {} passwords failed to decrypt".format(error_count)))
+                    print(indent_text("At least {} passwords failed to decrypt".format(error_count)))
 
                 f.write(browser.name + "\n")
                 for row in credentials:
@@ -53,7 +51,7 @@ def main():
                     f.write(line + "\n")
                 f.write("\n")
             else:
-                print(wrapper.fill("No credentials found"))
+                print(indent_text("No credentials found"))
 
             print()
 

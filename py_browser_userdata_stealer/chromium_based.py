@@ -3,11 +3,12 @@ import json
 import os
 import shutil
 import sqlite3
-import textwrap
 import uuid
 
 import win32crypt
 from Crypto.Cipher import AES
+
+from . import indent_text
 
 class ChromiumBased:
 
@@ -20,9 +21,6 @@ class ChromiumBased:
         self.is_yandex = "Yandex" in name
 
         self.key = self._get_key()
-
-        indent = " "*4
-        self.wrapper = textwrap.TextWrapper(initial_indent=indent, subsequent_indent=indent)
 
     def _get_database_paths(self):
         databases = set()
@@ -68,7 +66,7 @@ class ChromiumBased:
                 curs.execute(db_query)
                 logins_data = curs.fetchall()
             except sqlite3.DatabaseError as err:
-                print(self.wrapper.fill("Error with {}: {}".format(db, err)))
+                print(indent_text("Error with {}: {}".format(db, err)))
                 continue
             finally:
                 conn.close()
