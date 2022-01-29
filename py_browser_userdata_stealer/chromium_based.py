@@ -62,7 +62,7 @@ class ChromiumBased:
                                "password_value FROM logins"
                     logins_data = conn.execute(db_query).fetchall()
             except sqlite3.DatabaseError as e:
-                print(indent_text("Error with {}: {}".format(db, e)))
+                print(indent_text(f"Error with {db}: {e}"))
                 continue
             finally:
                 del temp_db

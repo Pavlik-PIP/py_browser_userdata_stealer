@@ -21,7 +21,8 @@ chromium_browsers = (
 )
 
 def main():
-    print("Console app that searches for browser's credentials and saves it to .csv file\n")
+    print("Console app that searches for browser's "
+          "credentials and saves it to .csv file\n")
 
     installed_browsers = [ChromiumBased(name, path) for name, path in
                           chromium_browsers if os.path.exists(path)]
@@ -36,10 +37,11 @@ def main():
             
             credentials = browser.get_credentials()
             if credentials:
-                print(indent_text("Found {} credentials".format(len(credentials))))
+                print(indent_text(f"Found {len(credentials)} credentials"))
                 error_count = sum("%ERROR%" in r[2] for r in credentials)
                 if error_count > 0:
-                    print(indent_text("At least {} passwords failed to decrypt".format(error_count)))
+                    print(indent_text(f"At least {error_count} passwords failed"
+                                       " to decrypt"))
 
                 f.write(browser.name + "\n")
                 for row in credentials:
@@ -52,9 +54,9 @@ def main():
             print()
 
     if os.stat(out_file).st_size != 0:
-        print("\nFile \"{}\" has been successfully created".format(out_file))
+        print(f"\nFile \"{out_file}\" has been successfully created")
     else:
-        print("\nFile \"{}\" wasn't created".format(out_file))
+        print(f"\nFile \"{out_file}\" wasn't created")
         os.remove(out_file)
 
 if __name__ == "__main__":
