@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 import os
+import sys
 import textwrap
 
-from py_browser_userdata_stealer.chromium_based import ChromiumBased
+from .chromium_based import ChromiumBased
 
 # Chromium based browser's name, User Data path
 chromium_browsers = [

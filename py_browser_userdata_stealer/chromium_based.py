@@ -1,10 +1,10 @@
-import os
-import json
 import base64
-import uuid
+import json
+import os
 import shutil
 import sqlite3
 import textwrap
+import uuid
 
 import win32crypt
 from Crypto.Cipher import AES
