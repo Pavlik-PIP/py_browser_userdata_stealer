@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import csv
 import os
 import sys
 
@@ -31,7 +32,9 @@ def main():
         sys.exit("No browsers found")
 
     out_file = "credentials.csv"
-    with open(out_file, "w", encoding="utf-8") as f:
+    with open(out_file, "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f, delimiter=";")
+
         for browser in installed_browsers:
             print(browser.name + ":")
             
@@ -44,9 +47,7 @@ def main():
                                        " to decrypt"))
 
                 f.write(browser.name + "\n")
-                for row in credentials:
-                    line = ";".join(row)
-                    f.write(line + "\n")
+                writer.writerows(credentials)
                 f.write("\n")
             else:
                 print(indent_text("No credentials found"))
