@@ -4,25 +4,27 @@ import os
 import shutil
 import sqlite3
 from tempfile import NamedTemporaryFile
+from typing import Any, List
 
 import win32crypt
 from Crypto.Cipher import AES
 
-from . import indent_text
+from . import indent_text, Credentials
+
 
 class ChromiumBased:
 
-    def __init__(self, name, user_data_path):
+    def __init__(self, name: str, user_data_path: str) -> None:
         self.name = name
         self.user_data_path = user_data_path
-        self.local_state_path = os.path.join(user_data_path, "Local State")
-        self.database_paths = self._get_database_paths()
+        self._local_state_path = os.path.join(user_data_path, "Local State")
+        self._database_paths = self._get_database_paths()
 
-        self.is_yandex = "Yandex" in name
+        self._is_yandex = "Yandex" in name
 
-        self.key = self._get_key()
+        self._key = self._get_key()
 
-    def _get_database_paths(self):
+    def _get_database_paths(self) -> List[str]:
         databases = set()
 
         # Empty string means current dir, without a profile
@@ -34,7 +36,7 @@ class ChromiumBased:
                 profiles.add(f)
 
         # Add profiles from Local State
-        with open(self.local_state_path, "r", encoding="utf-8") as f:
+        with open(self._local_state_path, "r", encoding="utf-8") as f:
             try:
                 data = json.load(f)
                 profiles |= set(data["profile"]["info_cache"])
@@ -49,10 +51,10 @@ class ChromiumBased:
 
         return databases
 
-    def get_credentials(self):
+    def get_credentials(self) -> List[Credentials]:
         credentials = []
 
-        for db in self.database_paths:
+        for db in self._database_paths:
             temp_db = NamedTemporaryFile(delete=False)
             shutil.copyfile(db, temp_db.name)
 
@@ -75,15 +77,14 @@ class ChromiumBased:
                 username = row[1]
                 encrypted_password = row[2]
 
-                password = self._decrypt_password(encrypted_password, self.key)
+                password = self._decrypt_password(encrypted_password, self._key)
 
-                row = (url, username, password)
-                credentials.append(row)
+                credentials.append(Credentials(url, username, password))
 
         return credentials
 
-    def _get_key(self):
-        with open(self.local_state_path, "r", encoding="utf-8") as f:
+    def _get_key(self) -> Any:
+        with open(self._local_state_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             encrypted_key = data["os_crypt"]["encrypted_key"]
 
@@ -96,13 +97,13 @@ class ChromiumBased:
 
         return key
 
-    def _decrypt_password(self, encrypted_password, key):
+    def _decrypt_password(self, encrypted_password: bytes, key: bytes) -> str:
         DPAPI_version_prefix = "v10"
 
-        nonce_length = 12 # 96 / 8
-        auth_tag_length = 16 # 128 / 8
+        nonce_length = 12  # 96 / 8
+        auth_tag_length = 16  # 128 / 8
 
-        if not self.is_yandex:
+        if not self._is_yandex:
             encrypted_password = encrypted_password[len(DPAPI_version_prefix):]
 
         nonce = encrypted_password[:nonce_length]

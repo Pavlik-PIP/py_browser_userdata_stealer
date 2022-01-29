@@ -9,6 +9,7 @@ from .chromium_based import ChromiumBased
 
 from . import indent_text
 
+
 # Chromium based browser"s name, User Data path
 chromium_browsers = (
     ("Google Chrome", os.path.normpath(os.getenv("LOCALAPPDATA") +
@@ -20,6 +21,7 @@ chromium_browsers = (
     ("Yandex Browser", os.path.normpath(os.getenv("LOCALAPPDATA") +
      "/Yandex/YandexBrowser/User Data"))
 )
+
 
 def main():
     print("Console app that searches for browser's "
@@ -37,14 +39,14 @@ def main():
 
         for browser in installed_browsers:
             print(browser.name + ":")
-            
+
             credentials = browser.get_credentials()
             if credentials:
                 print(indent_text(f"Found {len(credentials)} credentials"))
-                error_count = sum("%ERROR%" in r[2] for r in credentials)
+                error_count = sum(cr.password == "%ERROR%" for cr in credentials)
                 if error_count > 0:
                     print(indent_text(f"At least {error_count} passwords failed"
-                                       " to decrypt"))
+                                      " to decrypt"))
 
                 f.write(browser.name + "\n")
                 writer.writerows(credentials)
@@ -59,6 +61,7 @@ def main():
     else:
         print(f"\nFile \"{out_file}\" wasn't created")
         os.remove(out_file)
+
 
 if __name__ == "__main__":
     main()
