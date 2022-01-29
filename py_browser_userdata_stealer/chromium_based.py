@@ -57,16 +57,14 @@ class ChromiumBased:
             shutil.copyfile(db, temp_db.name)
 
             try:
-                conn = sqlite3.connect(temp_db.name)
-                curs = conn.cursor()
-                db_query = "SELECT origin_url, username_value, password_value FROM logins"
-                curs.execute(db_query)
-                logins_data = curs.fetchall()
+                with sqlite3.connect(temp_db.name) as conn:
+                    db_query = "SELECT origin_url, username_value, " \
+                               "password_value FROM logins"
+                    logins_data = conn.execute(db_query).fetchall()
             except sqlite3.DatabaseError as e:
                 print(indent_text("Error with {}: {}".format(db, e)))
                 continue
             finally:
-                conn.close()
                 del temp_db
 
             if not logins_data:
