@@ -8,7 +8,7 @@ import textwrap
 from .chromium_based import ChromiumBased
 
 # Chromium based browser's name, User Data path
-chromium_browsers = [
+chromium_browsers = (
     ("Google Chrome", os.path.normpath(os.getenv("LOCALAPPDATA") + 
     "/Google/Chrome/User Data")),
     ("Microsoft Edge", os.path.normpath(os.getenv("LOCALAPPDATA") + 
@@ -17,7 +17,7 @@ chromium_browsers = [
     "/Opera Software/Opera Stable")),
     ("Yandex Browser", os.path.normpath(os.getenv("LOCALAPPDATA") + 
     "/Yandex/YandexBrowser/User Data"))
-]
+)
 
 def main():
     print("Console app that searches for browser's credentials and saves it to .csv file\n")
