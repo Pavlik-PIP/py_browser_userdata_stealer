@@ -1,4 +1,5 @@
 import base64
+from collections import namedtuple
 import json
 import os
 import shutil
@@ -9,11 +10,12 @@ from typing import Any, List
 import win32crypt
 from Crypto.Cipher import AES
 
-from . import indent_text, Credentials
+from . import indent_text
+
+Credentials = namedtuple("Credentials", ["url", "username", "password"])
 
 
 class ChromiumBased:
-
     def __init__(self, name: str, user_data_path: str) -> None:
         self.name = name
         self.user_data_path = user_data_path
